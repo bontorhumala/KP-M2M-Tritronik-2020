@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+   <meta charset = "utf-8" />
+   <title>WebSocket Test</title>
+   
+   <h2>WebSocket Test</h2>
+   <form id = "myForm">
+      <label for="fname">First name:</label><br>
+      <input type="text" id="fname" name="fname" value="John"><br>
+      <label for="lname">Last name:</label><br>
+      <input type="text" id="lname" name="lname" value="Doe"><br><br>
+      <input type="submit" value="Submit">
+   </form>
+
+   <script language = "javascript" type = "text/javascript">
+   		
+      document.getElementById("myForm").addEventListener("submit", init);
+      
+      var wsUri = "ws://192.168.1.100/";
+      var output;
+      var temp = "temperature";
+      var val = 10;
+
+      function init() {
+         // output = document.getElementById("output");
+         testWebSocket();
+      }
+		
+      function testWebSocket() {
+         websocket = new WebSocket(wsUri);
+			
+         websocket.onopen = function(evt) {
+            onOpen(evt)
+         };
+		
+         websocket.onmessage = function(evt) {
+            onMessage(evt)
+         };
+		
+         websocket.onerror = function(evt) {
+            onError(evt)
+         };
+      }
+		
+      function onOpen(evt) {
+         writeToScreen("CONNECTED");
+         var msg = {"sensor": temp, "identifier":"SENS123456789", "value": val, "timestamp": "20/10/2017 10:10:25"};
+         writeToScreen("SENDING");
+         doSend(JSON.stringify(msg));
+         writeToScreen("SENT");
+      }
+		
+      function onMessage(evt) {
+         writeToScreen('<span style = "color: blue;">RESPONSE: ' +
+            evt.data+'</span>'); websocket.close();
+      }
+
+      function onError(evt) {
+         writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+      }
+		
+      function doSend(message) {
+         writeToScreen("SENT: " + message); websocket.send(message);
+      }
+		
+      function writeToScreen(message) {
+         var pre = document.createElement("p"); 
+         pre.style.wordWrap = "break-word"; 
+         pre.innerHTML = message; output.appendChild(pre);
+      }
+	
+   </script>
+	
+   <!-- <div id = "output"></div>  -->
+	
+</html>
