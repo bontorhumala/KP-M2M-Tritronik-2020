@@ -1,0 +1,47 @@
+<!doctype html>
+<form name="publish">
+  <label>SSID:</label>
+  <input type="text" name="ssid" value="ssid"/>
+  <label>Password:</label>
+  <input type="text" name="pwd" value="password"/>
+  <input type="submit" value="Send"/>
+</form>
+<button id="ButtonStop">Close Connection</button>
+<div id="messages"></div>
+
+<script>
+// let url = "ws://192.168.1.100/"
+let url = "ws://192.168.4.1/"
+let socket = new WebSocket(url);
+
+// send message from the form
+document.forms.publish.onsubmit = function() {
+  let message = { ssid : this.ssid.value, password : this.pwd.value };
+  let outgoingMessage = JSON.stringify(message);
+  socket.send(outgoingMessage);
+  return false;
+};
+
+// handle incoming messages
+socket.onmessage = function(event) {
+  let incomingMessage = event.data;
+  showMessage(incomingMessage);
+};
+
+socket.onclose = event => console.log(`Closed ${event.code}`);
+
+// show message in div#messages
+function showMessage(message) {
+  let messageElem = document.createElement('div');
+  messageElem.textContent = message;
+  document.getElementById('messages').prepend(messageElem);
+}
+
+ButtonStop.onclick = function() {
+   // Close the connection, if open.
+   if (socket.readyState === WebSocket.OPEN) {
+      socket.close();
+      alert("Websocket disconnected\nRefresh page to begin new connection")
+   }
+}
+</script>
