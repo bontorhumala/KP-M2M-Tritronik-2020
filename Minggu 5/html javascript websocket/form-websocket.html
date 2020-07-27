@@ -1,47 +1,202 @@
 <!doctype html>
-<form name="publish">
-  <label>SSID:</label>
-  <input type="text" name="ssid" value="ssid"/>
-  <label>Password:</label>
-  <input type="text" name="pwd" value="password"/>
-  <input type="submit" value="Send"/>
-</form>
-<button id="ButtonStop">Close Connection</button>
-<div id="messages"></div>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script>
-// let url = "ws://192.168.1.100/"
-let url = "ws://192.168.4.1/"
-let socket = new WebSocket(url);
+<head>
+  <title>ESP32 Network Setting</title>
+  <style>
+    /* Style the header */
+    .header {
+      padding: 20px;
+      text-align: center;
+      background: #1abc9c;
+      color: white;
+    }
 
-// send message from the form
-document.forms.publish.onsubmit = function() {
-  let message = { ssid : this.ssid.value, password : this.pwd.value };
-  let outgoingMessage = JSON.stringify(message);
-  socket.send(outgoingMessage);
-  return false;
-};
+    /* Increase the font size of the h1 element */
+    .header h1 {
+      font-size: 40px;
+    }
 
-// handle incoming messages
-socket.onmessage = function(event) {
-  let incomingMessage = event.data;
-  showMessage(incomingMessage);
-};
+    label.a {
+      padding: 12px 0;
+      font: 20px Arial, sans-serif;
+      display: inline-block;
+    }
 
-socket.onclose = event => console.log(`Closed ${event.code}`);
+    input[type=text] {
+      width: 100%;
+      padding: 12px;
+      /* box-sizing: border-box; */
+      border: 3px solid #ccc;
+      -webkit-transition: 0.5s;
+      transition: 0.5s;
+      outline: none;
+      resize: vertical;
+    }
 
-// show message in div#messages
-function showMessage(message) {
-  let messageElem = document.createElement('div');
-  messageElem.textContent = message;
-  document.getElementById('messages').prepend(messageElem);
-}
+    input[type=text]:focus {
+      border: 3px solid #555;
+    }
 
-ButtonStop.onclick = function() {
-   // Close the connection, if open.
-   if (socket.readyState === WebSocket.OPEN) {
-      socket.close();
-      alert("Websocket disconnected\nRefresh page to begin new connection")
-   }
-}
-</script>
+    input[type=text]:hover {
+      background-color: #ebebeb;
+    }
+
+    input[type=submit] {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 14px 20px;
+      text-decoration: none;
+      margin: 8px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      float: right;
+      -webkit-transition: 0.3s;
+      transition: 0.3s;
+      font: 20px Arial, sans-serif;
+    }
+
+    input[type=submit]:hover {
+      background-color: #357e39;
+    }
+
+    .button {
+      background-color: #a10707;
+      border: none;
+      color: white;
+      padding: 14px 20px;
+      text-decoration: none;
+      margin: 8px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      float: left;
+      -webkit-transition: 0.3s;
+      transition: 0.3s;
+      font: 20px Arial, sans-serif;
+    }
+
+    .button:hover {
+      background-color: #5c0404;
+    }
+
+    .log {
+      font: 15px Arial, sans-serif;
+      border-radius: 5px;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+
+    .col-10 {
+      float: left;
+      width: 10%;
+      margin-top: 6px;
+    }
+
+    .col-90 {
+      float: left;
+      width: 90%;
+      margin-top: 6px;
+    }
+
+    .col-50 {
+      float: left;
+      width: 50%;
+      margin-top: 6px;
+    }
+
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+    @media screen and (max-width: 1000px) {
+
+      .col-50,
+      .col-10,
+      .col-90,
+      input[type=submit] {
+        width: 100%;
+        margin-top: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Laundry Controller ESP32</h1>
+    <p>To Connect ESP32 To Access Point or Router</p>
+  </div>
+  <form name="publish">
+    <div class="row">
+      <div class="col-10">
+        <label class=a>SSID:</label>
+      </div>
+      <div class="col-90">
+        <input type="text" name="ssid" placeholder="ssid" /><br>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-10">
+        <label class=a>Password:</label>
+      </div>
+      <div class="col-90">
+        <input type="text" name="pwd" placeholder="password" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-50">
+        <button class=button id="ButtonStop">Close Connection</button>
+      </div>
+      <div class="col-50">
+        <input type="submit" value="Send" />
+      </div>
+    </div>
+  </form>
+  <div class="col-10">
+    <label class=a>Log:</label>
+  </div>
+  <div class=log id="messages"></div>
+  <script>
+    let url = "ws://192.168.4.1:1337/";
+    let socket = new WebSocket(url);
+    document.forms.publish.onsubmit = function () {
+      let message = { ssid: this.ssid.value, password: this.pwd.value };
+      let outgoingMessage = JSON.stringify(message);
+      socket.send(outgoingMessage);
+      return false;
+    };
+    socket.onmessage = function (event) {
+      let incomingMessage = event.data;
+      showMessage(incomingMessage);
+    };
+    socket.onclose = function (event) {
+      console.log(`Closed ${event.code}`);
+      alert("Websocket disconnected\nRefresh page to begin new connection");
+    };
+    function showMessage(message) {
+      let messageElem = document.createElement('div');
+      messageElem.textContent = message;
+      document.getElementById('messages').prepend(messageElem);
+    }
+    ButtonStop.onclick = function () {
+      if (socket.readyState === WebSocket.OPEN) {
+        var r = confirm("Are you sure to close connection?");
+        if (r == true) {
+          socket.close();
+        } else {
+          alert("Input SSID and Password to connect ESP32 to Access Point with Internet");
+        }
+      } else {
+        alert("WebSocket already closed");
+      }
+    }
+  </script>
+</body>
+
+</html>
