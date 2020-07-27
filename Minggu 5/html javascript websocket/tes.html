@@ -1,0 +1,45 @@
+<!doctype html>
+<form name="publish">
+<label >SSID:</label>
+<input type="text" name="ssid" value="ssid" /><br>
+<label >Password:</label>
+<input type="text" name="pwd" value="password" />
+<input type="submit" value="Send" />
+</form>
+<button id="ButtonStop">Close Connection</button>
+<div id="messages">Log:</div>
+<script>
+let url = "ws://192.168.4.1:1337/"
+let socket = new WebSocket(url);
+document.forms.publish.onsubmit = function () {
+let message = { ssid: this.ssid.value, password: this.pwd.value };
+let outgoingMessage = JSON.stringify(message);
+socket.send(outgoingMessage);
+return false;
+};
+socket.onmessage = function (event) {
+let incomingMessage = event.data;
+showMessage(incomingMessage);
+};
+socket.onclose = function (event) {
+console.log(`Closed ${event.code}`);
+alert("Websocket disconnected\nRefresh page to begin new connection");
+}
+function showMessage(message) {
+let messageElem = document.createElement('div');
+messageElem.textContent = message;
+document.getElementById('messages').prepend(messageElem);
+}
+ButtonStop.onclick = function () {
+if (socket.readyState === WebSocket.OPEN) {
+var r = confirm("Are you sure to close connection?");
+if (r == true) {
+socket.close();
+} else {
+alert("Input SSID and Password to connect ESP32 to Access Point with Internet");
+}
+} else {
+alert("WebSocket already closed");
+}
+}
+</script>
