@@ -33,8 +33,7 @@ void onWebSocketEvent(uint8_t client_num, WStype_t type, uint8_t * payload, size
       }
       strncpy(ssid,doc["ssid"],50);
       strncpy(password,doc["password"],50);
-//      ssid = doc["ssid"];         //Get sensor type value
-//      password = doc["password"]; //Get sensor type value
+
       client = new EspMQTTClient(
         ssid,
         password,
