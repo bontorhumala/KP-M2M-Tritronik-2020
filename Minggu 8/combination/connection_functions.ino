@@ -95,12 +95,12 @@ void ConnectionSetup(){
 void onConnectionEstablished()
 {
   // Subscribe to "mytopic/test" and display received message to Serial
-  client->subscribe(TOPIC, [](const String & payload) {
-    Serial.println(payload);
-  });
+//  client->subscribe(TOPIC, [](const String & payload) {
+//    Serial.println(payload);
+//  });
 
   // Publish a message to "mytopic/test"
-  client->publish(TOPIC, "ESP32 Connected"); // You can activate the retain flag by setting the third parameter to true
+  client->publish(TOPIC, docString); // You can activate the retain flag by setting the third parameter to true
 }
 
 bool ConnectionWifiSetup(){
@@ -125,6 +125,7 @@ bool ConnectionWifiSetup(){
   }
   if (client->isConnected()) {
     unsigned int ip = WiFi.localIP();
+    char sendtext[100]; // text display berhasil connect dan local ip
     bytes[0] = ip & 0xFF;
     bytes[1] = (ip >> 8) & 0xFF;
     bytes[2] = (ip >> 16) & 0xFF;
