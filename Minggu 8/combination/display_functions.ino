@@ -90,18 +90,16 @@ void DisplayIntro() {
 void DisplayMainMenu(button_t button) {
   if (isMainMenuActive) { // laundry is active
     const size_t capacity = JSON_OBJECT_SIZE(4);
-    DynamicJsonDocument doc(capacity);
-    String temp = cursor_main_menu;
-    temp.toLowerCase();
-    doc["sensor"] = temp;
-    doc["param"] = "value";
-    doc["value"] = true;
-    String docString;
     tft.fillScreen(TFT_WHITE);
     if(client->isConnected()){
-      TJpgDec.drawSdJpg(5, 210, MENU_WIFI_CONNECTED);
+      DynamicJsonDocument doc(capacity);
+      doc["sensor"] = (cursor_main_menu == WASHER) ? "washer" : "dryer" ;
+      doc["param"] = "value";
+      doc["value"] = true;
+      docString.remove(0);
       serializeJson(doc, docString);
       client->publish(TOPIC, docString);
+      TJpgDec.drawSdJpg(5, 210, MENU_WIFI_CONNECTED);
     } else {
       TJpgDec.drawSdJpg(5, 210, MENU_WIFI_DISCONNECTED);
     }
@@ -125,13 +123,19 @@ void DisplayMainMenu(button_t button) {
       delay(1000);
     }
     isMainMenuActive = false;
-    doc["value"] = false;
-    docString.remove(0);
     tft.fillScreen(TFT_WHITE);
     textLaundryDone(cursor_main_menu);
+//    DisableTimer();
+//    client->loop();
+//    EnableTimer();
     if(client->isConnected()){
+      DynamicJsonDocument doc(capacity);
+      doc["sensor"] = (cursor_main_menu == WASHER) ? "washer" : "dryer" ;
+      doc["param"] = "value";
+      doc["value"] = false;
+      docString.remove(0);
       serializeJson(doc, docString);
-      client->publish(TOPIC, docString); 
+      client->publish(TOPIC, docString);
     }
     delay(3000);
   } else { // laundry is inactive
@@ -246,9 +250,12 @@ bool DisplayInputPin(char whichMode){
       button = WhichButtonTouched();
     }
     tft.fillScreen(TFT_WHITE);
-    if (button == CROSS) { // SEHARUSNYA CHECK TAPI CHECK BERMASALAH
+    if (button == CHECK) {
       count_digit_pin++;
-      number[count_digit_pin]++;
+      number[count_digit_pin] = (number[count_digit_pin] == -1) ? 0 : number[count_digit_pin];
+    } else if (button == CROSS) {
+      count_digit_pin--;
+      count_digit_pin = (count_digit_pin < 0) ? 1 : count_digit_pin;
     } else if (button == RIGHT) {
       number[count_digit_pin]++;
       if (number[count_digit_pin] > 9) {
@@ -383,27 +390,22 @@ void DisplaySetting() {
     ESP.restart();
   } else if (cursor_setting == SETUP_WIFI){
     if(DisplayInputPin('s')){
-      //disable timer
-      timerAlarmDisable(timerInterruptService);    // stop alarm
-      timerDetachInterrupt(timerInterruptService);  // detach interrupt
-      timerEnd(timerInterruptService);      // end timer
+      DisableTimer();
       
       // begin smart config
       TJpgDec.drawSdJpg(0, 0, POPUP_SMART_CONFIG_MODE);
       tft.setFreeFont(&OpenSans_SemiBold12pt7b);
       tft.setTextColor(TFT_BLACK);
-      tft.setCursor(20, 160);
       if (ConnectionWifiSetup()){
+        tft.setCursor(20, 220);
+        char sendtext[50]; // text dsiplay berhasil connect dan local ip
+        sprintf(sendtext, "Connected to %s\n", WiFi.SSID());
         tft.println(sendtext);
       } else {
         tft.println("Failed to Connect. Please Retry");
       }
-      
-      //re-enable timer
-      timerInterruptService = timerBegin(0, 80, true);
-      timerAttachInterrupt(timerInterruptService, & InterruptService, true);
-      timerAlarmWrite(timerInterruptService, 1000, true);
-      timerAlarmEnable(timerInterruptService);
+
+      EnableTimer();
     }
   }
 //  TJpgDec.drawSdJpg(0, 0, POPUP_CONFIG_RECEIVED);
