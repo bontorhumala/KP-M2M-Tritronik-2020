@@ -12,19 +12,20 @@ void TouchSetup(){
   // Start interrupt service.
   // Create timerInterruptService to main loop semaphore.
   timerLoopSemaphore = xSemaphoreCreateBinary();
-
-  // Use timer 0 (4 available from 0 through 3), with a prescale of 80.
-  timerInterruptService = timerBegin(0, 80, true);
-
-  // Attach timerInterruptService() to timer.
-  timerAttachInterrupt(timerInterruptService, & InterruptService, true);
-
-  // Set alarm to call onTimer function every millisecond (value in microseconds)
-  // with repeat (third parameter).
-  timerAlarmWrite(timerInterruptService, 1000, true);
-
-  // Start the alarm.
-  timerAlarmEnable(timerInterruptService);
+  EnableTimer();
+//
+//  // Use timer 0 (4 available from 0 through 3), with a prescale of 80.
+//  timerInterruptService = timerBegin(0, 80, true);
+//
+//  // Attach timerInterruptService() to timer.
+//  timerAttachInterrupt(timerInterruptService, & InterruptService, true);
+//
+//  // Set alarm to call onTimer function every millisecond (value in microseconds)
+//  // with repeat (third parameter).
+//  timerAlarmWrite(timerInterruptService, 1000, true);
+//
+//  // Start the alarm.
+//  timerAlarmEnable(timerInterruptService);
 }
 
 
@@ -205,4 +206,19 @@ button_t WhichButtonTouched(){
     Serial.println("loop(): using portMAX_DELAY as the xSemaphoreTake timout value, this should never print.\n");
   }
   return NOTHING;
+}
+
+void EnableTimer(){
+  //re-enable timer
+  timerInterruptService = timerBegin(0, 80, true);
+  timerAttachInterrupt(timerInterruptService, & InterruptService, true);
+  timerAlarmWrite(timerInterruptService, 1000, true);
+  timerAlarmEnable(timerInterruptService);
+}
+
+void DisableTimer(){
+  //disable timer
+  timerAlarmDisable(timerInterruptService);    // stop alarm
+  timerDetachInterrupt(timerInterruptService);  // detach interrupt
+  timerEnd(timerInterruptService);      // end timer
 }
