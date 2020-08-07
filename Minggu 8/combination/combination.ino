@@ -12,7 +12,9 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   button_t which_button_touched = WhichButtonTouched();
+  DisableTimer();
   client->loop();
+  EnableTimer();
   if (which_button_touched != SETTING){
     DisplayMainMenu(which_button_touched); 
   } else {
