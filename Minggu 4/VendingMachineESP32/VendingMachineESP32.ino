@@ -105,26 +105,26 @@ void loop()
   TJpgDec.drawSdJpg(5, 210, menu + "wifi_disconnected.jpg");
   delay(5000);
 
-//  // payment qris
-//  tft.fillScreen(TFT_WHITE);
-//  TJpgDec.drawSdJpg(70, 100, payment + "logoqris.jpg");
-//  TJpgDec.drawSdJpg(150+80, 105, logo + "checklist.jpg");
-//  delay(5000);
-//
-//  //payment success
-//  tft.fillScreen(TFT_WHITE);
-//  TJpgDec.drawSdJpg(0, 0, popup + "payment_success.jpg");
-//  delay(5000);
-//
-//  tft.fillScreen(TFT_WHITE);
-//  TJpgDec.drawSdJpg(50, 50, setting + "network.jpg");
-//  TJpgDec.drawSdJpg(50, 50+35, setting + "smart_config.jpg");
-//  TJpgDec.drawSdJpg(50, 50+70, setting + "about.jpg");
-//  TJpgDec.drawSdJpg(50, 50+105, setting + "reset.jpg");
-//  for (int i = 1; i < 5; i++){
-//    checkListPos(i);
-//    delay(2000);
-//  }
+  // payment qris
+  tft.fillScreen(TFT_WHITE);
+  TJpgDec.drawSdJpg(70, 100, payment + "logoqris.jpg");
+  TJpgDec.drawSdJpg(150+80, 105, logo + "checklist.jpg");
+  delay(5000);
+
+  //payment success
+  tft.fillScreen(TFT_WHITE);
+  TJpgDec.drawSdJpg(0, 0, popup + "payment_success.jpg");
+  delay(5000);
+
+  tft.fillScreen(TFT_WHITE);
+  TJpgDec.drawSdJpg(50, 50, setting + "network.jpg");
+  TJpgDec.drawSdJpg(50, 50+35, setting + "smart_config.jpg");
+  TJpgDec.drawSdJpg(50, 50+70, setting + "about.jpg");
+  TJpgDec.drawSdJpg(50, 50+105, setting + "reset.jpg");
+  for (int i = 1; i < 5; i++){
+    checkListPos(i);
+    delay(2000);
+  }
 
   tft.fillScreen(TFT_WHITE);
   TJpgDec.drawSdJpg(0, 0, logo + "mainlogo-blur.jpg");
